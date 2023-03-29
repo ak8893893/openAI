@@ -3,7 +3,7 @@
 作者 : 賴韋銘 AK
 時間 : 2023/3/29
 """
-
+import openai
 import socketserver as socketserver
 from http.server import SimpleHTTPRequestHandler as RequestHandler
 import json
@@ -34,9 +34,13 @@ auth_token = data["auth_token"]
 
 # 定義一個函式 找尋要回復給客戶的訊息
 def Answer(text):  # 參數放入客戶給入的訊息
+
+
+
+
     message = [{
       "type": "text",
-      "text": text
+      "text": openai.call_AI(text)
     }]
 
     return message  # 回傳找不到關鍵字時的訊息

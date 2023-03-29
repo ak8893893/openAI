@@ -25,10 +25,11 @@ url='https://api.openai.com/v1/chat/completions'
 # 設置對話開始的提示語
 prompt = ""
 print("你好 我是chatGPT")
-while True:
-
-    Input = input("請輸入要詢問我的內容(如果要清除前文 請輸入 0 ) : ")
-
+# while True:
+def call_AI(text):
+    # Input = input("請輸入要詢問我的內容(如果要清除前文 請輸入 0 ) : ")
+    global prompt
+    Input = text
     if Input == "0":
         prompt = input("已幫您清除前文 請輸入您想詢問的內容 : ")
 
@@ -54,6 +55,8 @@ while True:
         prompt +=  res+'\n'
 
         print(res)
+        return res
     except:
         print("發生錯誤:",r.content)
+        return ("發生錯誤:" + r.content)
 
