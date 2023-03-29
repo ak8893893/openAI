@@ -15,7 +15,10 @@ import openai
 import requests 
 import json
 
-openai.api_key = "你的key"
+with open("secret_key.json") as f:
+    data = json.load(f)
+
+openai.api_key = data["api_key"]
 
 url='https://api.openai.com/v1/chat/completions'
 
@@ -23,7 +26,13 @@ url='https://api.openai.com/v1/chat/completions'
 prompt = ""
 print("你好 我是chatGPT")
 while True:
-    prompt+=input(":")+'\n'
+
+    Input = input("請輸入要詢問我的內容(如果要清除前文 請輸入 0 ) : ")
+
+    if Input == "0":
+        prompt = input("已幫您清除前文 請輸入您想詢問的內容 : ")
+
+    prompt+= Input +'\n'
     payload={
         "model": "gpt-3.5-turbo",
         "messages": [{"role": "user", "content": prompt}]
@@ -43,7 +52,8 @@ while True:
         res=analyze_res(r.content)   
         
         prompt +=  res+'\n'
-        
+
         print(res)
     except:
         print("發生錯誤:",r.content)
+
