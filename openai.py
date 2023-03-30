@@ -56,5 +56,5 @@ def call_AI(text):
         return res
     except:
         print("發生錯誤:",r.content)
-        return ("發生錯誤:" + r.content)
+        return ("發生錯誤:" + str(r.content))
 

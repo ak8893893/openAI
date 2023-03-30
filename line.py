@@ -12,14 +12,15 @@ import requests
 from openpyxl import load_workbook  # 匯入 excel 資料庫
 from datetime import datetime
 import Chat
+import re
 
 # 讀取 secret_key.json
 with open("secret_key.json") as f:
-    data = json.load(f)
+    secret = json.load(f)
 
 # 輸入 使用者ID 和 token
-YouruserID = data["YouruserID"]
-auth_token = data["auth_token"]
+YouruserID = secret["YouruserID"]
+auth_token = secret["auth_token"]
 
 
 
@@ -43,18 +44,41 @@ class MyHandler(RequestHandler):  # 定義一個類別 繼承於 RequestHandler
             timeStamp = data['events'][0]['timestamp'] // 1000  # 時間戳 改成秒的形式
             stampTime = datetime.fromtimestamp(int(timeStamp))  # 把時間戳變成 年月日時分秒的格式
 
-        # 依據使用者來使用 key
-        with open("secret_key.json") as f:
-            data = json.load(f)
-            openai.api_key = data["userId_gpt_key"][userId]
+
 
 
         self.do_HEAD()
         # print(self.wfile)
-        message = {
-            "replyToken": replyToken,  # 回應哪一個人 ( 用他打過來的replytoken打回去)
-            "messages": Chat.Answer(text)  # 回復的訊息內容
-        }
+
+        #match = re.search(r'^sk-[A-Za-z0-9]{60}$', text)
+        #print(text[0:3], len(text))
+
+        if text[0:3]=="sk-" and len(text) == 51 :
+            with open("secret_key.json") as f:
+                secret = json.load(f)
+            secret["userId_gpt_key"][userId] = text
+            # 將更新後的資料庫寫回.json檔案
+            with open('secret_key.json', 'w') as f:
+                json.dump(secret, f)
+            message = {
+                "replyToken": replyToken,  # 回應哪一個人 ( 用他打過來的replytoken打回去)
+                "messages": [{
+                  "type": "text",
+                  "text": "已將您的chat GPT token 存入您的用戶資料庫中:\n" + "您的用戶ID為: " + userId + "\n" + "您的chat GPT token為: " + text
+                }]  # 回復的訊息內容
+            }
+
+        else:
+            # 依據使用者來使用 key
+            with open("secret_key.json") as f:
+                secret = json.load(f)
+                openai.api_key = secret["userId_gpt_key"][userId]
+
+
+            message = {
+                "replyToken": replyToken,  # 回應哪一個人 ( 用他打過來的replytoken打回去)
+                "messages": Chat.Answer(text)  # 回復的訊息內容
+            }
 
         # 紀錄和客戶對話的所有訊息
         # wb = load_workbook("Log.xlsx")  # 開啟 Log excel 準備存資料
