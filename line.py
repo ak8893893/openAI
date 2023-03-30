@@ -2,7 +2,7 @@
 標題 : GPT Line 機器人
 作者 : 賴韋銘 AK
 時間 : 2023/3/29
-todo : 1.optimized  2. deployed onto GCE
+todo : 1.optimized     2. deployed onto GCE  3.讓用戶可以輸入他的 gpt API token(目前我先用手動加token的方法)
 """
 import openai
 import socketserver as socketserver
@@ -11,6 +11,7 @@ import json
 import requests
 from openpyxl import load_workbook  # 匯入 excel 資料庫
 from datetime import datetime
+import Chat
 
 # 讀取 secret_key.json
 with open("secret_key.json") as f:
@@ -20,31 +21,7 @@ with open("secret_key.json") as f:
 YouruserID = data["YouruserID"]
 auth_token = data["auth_token"]
 
-# # 讀取 excel 檔案 把關鍵字索引和回答資料庫建成列表
-# wb = load_workbook('KitKat客服機器人資料庫.xlsx')  # 讀取 excel 檔案
-# sheetQA = wb["問答表"]  # 選擇 excel 內的 問答表 table
-# searchList = []  # 建立 一個空的List 當作關鍵字索引
-# for x in range(2, sheetQA.max_row + 1):  # 第一欄除標頭第一筆到最後一筆
-#     searchList.append(sheetQA.cell(row=x, column=1).value)  # 把關鍵字加入關鍵字列表中
-# print(searchList)  # 印出關鍵字列表
-# answerList = []  # 建立一個空的List 當作回答資料庫
-# for x in range(2, sheetQA.max_row + 1):  # 第二欄除標頭第一筆到最後一筆
-#     answerList.append(sheetQA.cell(row=x, column=2).value)  # 把回答資料加入回答列表中
-# print(answerList)  # 印出回答列表
 
-
-# 定義一個函式 找尋要回復給客戶的訊息
-def Answer(text):  # 參數放入客戶給入的訊息
-
-
-
-
-    message = [{
-      "type": "text",
-      "text": openai.call_AI(text)
-    }]
-
-    return message  # 回傳找不到關鍵字時的訊息
 
 
 class MyHandler(RequestHandler):  # 定義一個類別 繼承於 RequestHandler
@@ -66,11 +43,17 @@ class MyHandler(RequestHandler):  # 定義一個類別 繼承於 RequestHandler
             timeStamp = data['events'][0]['timestamp'] // 1000  # 時間戳 改成秒的形式
             stampTime = datetime.fromtimestamp(int(timeStamp))  # 把時間戳變成 年月日時分秒的格式
 
+        # 依據使用者來使用 key
+        with open("secret_key.json") as f:
+            data = json.load(f)
+            openai.api_key = data["userId_gpt_key"][userId]
+
+
         self.do_HEAD()
         # print(self.wfile)
         message = {
             "replyToken": replyToken,  # 回應哪一個人 ( 用他打過來的replytoken打回去)
-            "messages": Answer(text)  # 回復的訊息內容
+            "messages": Chat.Answer(text)  # 回復的訊息內容
         }
 
         # 紀錄和客戶對話的所有訊息

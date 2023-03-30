@@ -1,45 +1,43 @@
-def analyze_res(data):
-    # 將 bytes 轉換為 string
-    data_str = data.decode('utf-8')
-    
-    # 解析 JSON 資料
-    json_data = json.loads(data_str)
-    
-    # 取出 choices 中的回應內容
-    response = json_data['choices'][0]['message']['content']
-    return response
-
-#%%
-import os
 import openai
 import requests 
 import json
 
-with open("secret_key.json") as f:
-    data = json.load(f)
 
-openai.api_key = data["api_key"]
 
 url='https://api.openai.com/v1/chat/completions'
 
 # 設置對話開始的提示語
 prompt = ""
-print("你好 我是chatGPT")
-# while True:
+print("AK CHAT-GPT Assistant boot")
+
+def analyze_res(data):
+    # 將 bytes 轉換為 string
+    data_str = data.decode('utf-8')
+
+    # 解析 JSON 資料
+    json_data = json.loads(data_str)
+
+    # 取出 choices 中的回應內容
+    response = json_data['choices'][0]['message']['content']
+    return response
+
+
+
 def call_AI(text):
+
+
     # Input = input("請輸入要詢問我的內容(如果要清除前文 請輸入 0 ) : ")
     global prompt
     Input = text
     if Input == "0":
-        prompt = input("已幫您清除前文 請輸入您想詢問的內容 : ")
+        prompt = ""
+        return "已幫您清除前文 請輸入您想詢問的內容 : "
 
     prompt+= Input +'\n'
     payload={
         "model": "gpt-3.5-turbo",
         "messages": [{"role": "user", "content": prompt}]
-        #"n": 10,
-        #"temperature: 0.7
-    }
+        }
 
     headers={
         "Authorization": f"Bearer {openai.api_key}",
