@@ -69,16 +69,26 @@ class MyHandler(RequestHandler):  # 定義一個類別 繼承於 RequestHandler
             }
 
         else:
-            # 依據使用者來使用 key
-            with open("secret_key.json") as f:
-                secret = json.load(f)
-                openai.api_key = secret["userId_gpt_key"][userId]
+
+            try:
+                # 依據使用者來使用 key
+                with open("secret_key.json") as f:
+                    secret = json.load(f)
+                    openai.api_key = secret["userId_gpt_key"][userId]
 
 
-            message = {
-                "replyToken": replyToken,  # 回應哪一個人 ( 用他打過來的replytoken打回去)
-                "messages": Chat.Answer(text)  # 回復的訊息內容
-            }
+                message = {
+                    "replyToken": replyToken,  # 回應哪一個人 ( 用他打過來的replytoken打回去)
+                    "messages": Chat.Answer(text)  # 回復的訊息內容
+                }
+            except:
+                message = {
+                    "replyToken": replyToken,  # 回應哪一個人 ( 用他打過來的replytoken打回去)
+                    "messages": [{
+                          "type": "text",
+                          "text": "請先填入您的 chat-GPT api token  您可以到 https://platform.openai.com/account/api-keys 申請\n\n 拿到token後直接貼上送出即可"
+                        }]  # 回復的訊息內容
+                        }
 
         # 紀錄和客戶對話的所有訊息
         # wb = load_workbook("Log.xlsx")  # 開啟 Log excel 準備存資料
