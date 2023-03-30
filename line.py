@@ -2,6 +2,7 @@
 標題 : GPT Line 機器人
 作者 : 賴韋銘 AK
 時間 : 2023/3/29
+todo : 1.optimized  2. deployed onto GCE
 """
 import openai
 import socketserver as socketserver
